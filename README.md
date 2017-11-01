@@ -1,21 +1,18 @@
-# Kinesis Batch Retry
+# Batch Retry
 
-This library provides an interface to submit a batch of records to Kinesis using the [PutRecords](http://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecords.html) API method, with retries and exponential backoff.
+This library provides an interface to submit a batch of records to submit to an API, which retries all failed records with an exponential backoff. Currently it just supports Kinesis using the [PutRecords](http://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecords.html) API method, but it can be used to support more APIs.
 
 Usage:
 
 ```
-from kinesis_batch_retry import KinesisBatchRetry
+from batch_retry import BatchRetry
+from batch_retry import KinesisProcessor
 
 def main():
   kinesis_client = boto3.client('kinesis')
-  kinesis_retry_client = KinesisBatchRetry(kinesis_client, batch_size=250, retries=5)
-  kinesis_retry_client.send(['my_first_record'])
+  send_function = KinesisProcessor(kinesis_client, 'my-stream', batch_size=250).send
+  BatchRetry(send_function, retries=5).send_with_retries(['my_first_record'])
 ```
-
-## Future enhancements
-
-The same mechanism could be applied to Kinesis Firehose Delivery Streams. While they support much more records/s, making this less of a problem, it would be trivial to adapt the retry/backoff mechanism to that service.
 
 ## Development Status
 
@@ -23,14 +20,14 @@ Early stage use
 
 ## Installing
 
-`pip install kinesis_batch_retry`
+`pip install batch_retry`
 
 Or add it to your `requirements.txt` file
 
 ## Contributing
 
 For bug fixes, documentation changes, and small features:  
-1. Fork it ( https://github.com/envato/kinesis_batch_retry/fork )  
+1. Fork it ( https://github.com/envato/batch_retry/fork )  
 2. Create your feature branch (`git checkout -b my-new-feature`)  
 3. Commit your changes (`git commit -am 'Add some feature'`)  
 4. Push to the branch (`git push origin my-new-feature`)  

@@ -43,18 +43,14 @@ class TestKinesisProcessor(unittest.TestCase):
 
     def test_puts_events_on_the_kinesis_stream(self):
         self.__send_events([self.event_1])
-        expected = [self.__build_kinesis_call(self.event_1)]
-        actual = self.kinesis_client_mock.put_records.mock_calls
-        self.assertListEqual(expected, actual)
+        self.kinesis_client_mock.put_records.assert_has_calls([self.__build_kinesis_call(self.event_1)])
 
     def test_puts_events_on_the_kinesis_stream_in_batches(self):
         self.__send_events([self.event_1, self.event_2])
-        expected = [self.__build_kinesis_call(self.event_1), self.__build_kinesis_call(self.event_2)]
-        actual = self.kinesis_client_mock.put_records.mock_calls
-        self.assertListEqual(expected, actual)
+        self.kinesis_client_mock.put_records.assert_has_calls([
+            self.__build_kinesis_call(self.event_1),
+            self.__build_kinesis_call(self.event_2)])
 
     def test_logs_the_kinesis_stream_response(self):
         self.__send_events([self.event_1])
-        expected = [call("Data sent to Kinesis: %s", self.kinesis_response)]
-        actual = self.logging_info_mock.mock_calls
-        self.assertListEqual(expected, actual)
+        self.logging_info_mock.assert_called_with("Data sent to Kinesis: %s", self.kinesis_response)

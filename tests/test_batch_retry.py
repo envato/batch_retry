@@ -11,11 +11,10 @@ class TestKinesisProcessorWithRetries(unittest.TestCase):
         self.event_2 = {"SomeEvent2": "text2"}
         self.put_records_attempts = 0
 
-        self.time_patch = patch('time.sleep')
-        self.time_mock = self.time_patch.start()
+        patch('time.sleep').start()
 
     def tearDown(self):
-        self.time_patch.stop()
+        patch.stopall()
 
     def mock_put_records_fail_first_attempt(self, **kwargs):
         if self.put_records_attempts == 0:

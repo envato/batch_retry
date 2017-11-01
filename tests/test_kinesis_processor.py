@@ -3,7 +3,7 @@ import unittest
 import uuid
 import logging
 from batch_retry import KinesisProcessor
-from unittest.mock import patch, call, MagicMock
+from unittest.mock import patch, call, MagicMock, PropertyMock
 
 class TestKinesisProcessor(unittest.TestCase):
     def setUp(self):
@@ -11,10 +11,6 @@ class TestKinesisProcessor(unittest.TestCase):
         self.hex = 'hex'
         self.event_1 = {"SomeEvent1": "text1"}
         self.event_2 = {"SomeEvent2": "text2"}
-
-        self.uuid_patch = patch('uuid.uuid4')
-        self.uuid_mock = self.uuid_patch.start()
-        self.uuid_mock().hex = self.hex
 
         self.kinesis_response = {
             'FailedRecordCount': 0,
@@ -29,16 +25,12 @@ class TestKinesisProcessor(unittest.TestCase):
         self.kinesis_client_mock = MagicMock()
         self.kinesis_client_mock.put_records.return_value = self.kinesis_response
 
-        self.logging_info_patch = patch('logging.info')
-        self.logging_info_mock = self.logging_info_patch.start()
+        self.logging_info_mock = patch('logging.info').start()
 
-        self.time_patch = patch('time.sleep')
-        self.time_mock = self.time_patch.start()
+        patch('time.sleep').start()
 
     def tearDown(self):
-        self.uuid_patch.stop()
-        self.logging_info_patch.stop()
-        self.time_patch.stop()
+        patch.stopall()
 
     def __build_kinesis_call(self, event):
         return call(Records=[{'Data': json.dumps(event), 'PartitionKey': self.hex}], StreamName=self.stream_name)
@@ -46,20 +38,20 @@ class TestKinesisProcessor(unittest.TestCase):
     def __send_events(self, events):
         KinesisProcessor(self.kinesis_client_mock, self.stream_name, batch_size=1).send(events)
 
-    def test_puts_events_on_the_kinesis_stream(self):
+    @patch('uuid.UUID.hex', new_callable=PropertyMock)
+    def test_puts_events_on_the_kinesis_stream(self, uuid_hex):
+        uuid_hex.return_value = self.hex
         self.__send_events([self.event_1])
-        expected = [self.__build_kinesis_call(self.event_1)]
-        actual = self.kinesis_client_mock.put_records.mock_calls
-        self.assertListEqual(expected, actual)
+        self.kinesis_client_mock.put_records.assert_has_calls([self.__build_kinesis_call(self.event_1)])
 
-    def test_puts_events_on_the_kinesis_stream_in_batches(self):
+    @patch('uuid.UUID.hex', new_callable=PropertyMock)
+    def test_puts_events_on_the_kinesis_stream_in_batches(self, uuid_hex):
+        uuid_hex.return_value = self.hex
         self.__send_events([self.event_1, self.event_2])
-        expected = [self.__build_kinesis_call(self.event_1), self.__build_kinesis_call(self.event_2)]
-        actual = self.kinesis_client_mock.put_records.mock_calls
-        self.assertListEqual(expected, actual)
+        self.kinesis_client_mock.put_records.assert_has_calls([
+            self.__build_kinesis_call(self.event_1),
+            self.__build_kinesis_call(self.event_2)])
 
     def test_logs_the_kinesis_stream_response(self):
         self.__send_events([self.event_1])
-        expected = [call("Data sent to Kinesis: %s", self.kinesis_response)]
-        actual = self.logging_info_mock.mock_calls
-        self.assertListEqual(expected, actual)
+        self.logging_info_mock.assert_called_with("Data sent to Kinesis: %s", self.kinesis_response)

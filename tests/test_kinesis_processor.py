@@ -3,7 +3,7 @@ import unittest
 import uuid
 import logging
 from batch_retry import KinesisProcessor
-from unittest.mock import patch, call, MagicMock
+from unittest.mock import patch, call, MagicMock, PropertyMock
 
 class TestKinesisProcessor(unittest.TestCase):
     def setUp(self):
@@ -11,9 +11,6 @@ class TestKinesisProcessor(unittest.TestCase):
         self.hex = 'hex'
         self.event_1 = {"SomeEvent1": "text1"}
         self.event_2 = {"SomeEvent2": "text2"}
-
-        self.uuid_mock = patch('uuid.uuid4').start()
-        self.uuid_mock().hex = self.hex
 
         self.kinesis_response = {
             'FailedRecordCount': 0,
@@ -41,11 +38,15 @@ class TestKinesisProcessor(unittest.TestCase):
     def __send_events(self, events):
         KinesisProcessor(self.kinesis_client_mock, self.stream_name, batch_size=1).send(events)
 
-    def test_puts_events_on_the_kinesis_stream(self):
+    @patch('uuid.UUID.hex', new_callable=PropertyMock)
+    def test_puts_events_on_the_kinesis_stream(self, uuid_hex):
+        uuid_hex.return_value = self.hex
         self.__send_events([self.event_1])
         self.kinesis_client_mock.put_records.assert_has_calls([self.__build_kinesis_call(self.event_1)])
 
-    def test_puts_events_on_the_kinesis_stream_in_batches(self):
+    @patch('uuid.UUID.hex', new_callable=PropertyMock)
+    def test_puts_events_on_the_kinesis_stream_in_batches(self, uuid_hex):
+        uuid_hex.return_value = self.hex
         self.__send_events([self.event_1, self.event_2])
         self.kinesis_client_mock.put_records.assert_has_calls([
             self.__build_kinesis_call(self.event_1),

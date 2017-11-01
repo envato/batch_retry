@@ -12,8 +12,7 @@ class TestKinesisProcessor(unittest.TestCase):
         self.event_1 = {"SomeEvent1": "text1"}
         self.event_2 = {"SomeEvent2": "text2"}
 
-        self.uuid_patch = patch('uuid.uuid4')
-        self.uuid_mock = self.uuid_patch.start()
+        self.uuid_mock = patch('uuid.uuid4').start()
         self.uuid_mock().hex = self.hex
 
         self.kinesis_response = {
@@ -29,16 +28,12 @@ class TestKinesisProcessor(unittest.TestCase):
         self.kinesis_client_mock = MagicMock()
         self.kinesis_client_mock.put_records.return_value = self.kinesis_response
 
-        self.logging_info_patch = patch('logging.info')
-        self.logging_info_mock = self.logging_info_patch.start()
+        self.logging_info_mock = patch('logging.info').start()
 
-        self.time_patch = patch('time.sleep')
-        self.time_mock = self.time_patch.start()
+        patch('time.sleep').start()
 
     def tearDown(self):
-        self.uuid_patch.stop()
-        self.logging_info_patch.stop()
-        self.time_patch.stop()
+        patch.stopall()
 
     def __build_kinesis_call(self, event):
         return call(Records=[{'Data': json.dumps(event), 'PartitionKey': self.hex}], StreamName=self.stream_name)

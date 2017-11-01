@@ -13,5 +13,6 @@ setup(
     description="Batch send data with retries and exponential backoff",
     install_requires=[
         'boto3>=1.0.0',
-    ]
+    ],
+    suite='tests',
 )

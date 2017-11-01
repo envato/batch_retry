@@ -1,6 +1,8 @@
 import json
 import unittest
-from kinesis_processor import KinesisProcessor
+import uuid
+import logging
+from batch_retry import KinesisProcessor
 from unittest.mock import patch, call, MagicMock
 
 class TestKinesisProcessor(unittest.TestCase):
@@ -10,7 +12,7 @@ class TestKinesisProcessor(unittest.TestCase):
         self.event_1 = {"SomeEvent1": "text1"}
         self.event_2 = {"SomeEvent2": "text2"}
 
-        self.uuid_patch = patch('kinesis_processor.uuid.uuid4')
+        self.uuid_patch = patch('uuid.uuid4')
         self.uuid_mock = self.uuid_patch.start()
         self.uuid_mock().hex = self.hex
 
@@ -27,15 +29,15 @@ class TestKinesisProcessor(unittest.TestCase):
         self.kinesis_client_mock = MagicMock()
         self.kinesis_client_mock.put_records.return_value = self.kinesis_response
 
-        self.logging_patch = patch('kinesis_processor.logging')
-        self.logging_mock = self.logging_patch.start()
+        self.logging_info_patch = patch('logging.info')
+        self.logging_info_mock = self.logging_info_patch.start()
 
         self.time_patch = patch('time.sleep')
         self.time_mock = self.time_patch.start()
 
     def tearDown(self):
         self.uuid_patch.stop()
-        self.logging_patch.stop()
+        self.logging_info_patch.stop()
         self.time_patch.stop()
 
     def __build_kinesis_call(self, event):
@@ -59,5 +61,5 @@ class TestKinesisProcessor(unittest.TestCase):
     def test_logs_the_kinesis_stream_response(self):
         self.__send_events([self.event_1])
         expected = [call("Data sent to Kinesis: %s", self.kinesis_response)]
-        actual = self.logging_mock.info.mock_calls
+        actual = self.logging_info_mock.mock_calls
         self.assertListEqual(expected, actual)

@@ -1,6 +1,6 @@
 import json
 import unittest
-from kinesis_processor import KinesisProcessor
+from batch_retry import KinesisProcessor
 from unittest.mock import patch, call, MagicMock
 from batch_retry import BatchRetry
 

@@ -11,7 +11,7 @@ setup(
     packages=['batch_retry'],
     include_package_data=True,
     description="Batch send data with retries and exponential backoff",
-    requires=[
+    install_requires=[
         'boto3>=1.0.0',
     ]
 )

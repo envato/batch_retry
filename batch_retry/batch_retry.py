@@ -1,6 +1,6 @@
 import time
 
-class RetryWithExponentialBackoff(object):
+class BatchRetry(object):
     """
     Retry a function a pre-defined number of times, with exponential backoff.
     Any results returned from the function are assumed to be records that need to be retried.

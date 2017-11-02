@@ -1,6 +1,6 @@
 # Batch Retry
 
-This library provides an interface to submit a batch of records to submit to an API, which retries all failed records with an exponential backoff. Currently it just supports Kinesis using the [PutRecords](http://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecords.html) API method, but it can be used to support more APIs.
+This library provides an interface to submit a batch of records to an API, which retries all failed records with an exponential backoff. Currently it just supports Kinesis using the [PutRecords](http://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecords.html) API method, but it can be used to support more APIs.
 
 Usage:
 

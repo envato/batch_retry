@@ -16,7 +16,7 @@ def main():
 
 ## Development Status
 
-Early stage use
+We don't recommend using it in production
 
 ## Installing
 

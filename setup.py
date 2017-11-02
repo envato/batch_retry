@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='batch_retry',
-    version='0.1',
+    version='0.0.1',
     license='MIT',
     author='patrickrobinson',
     author_email='patrick.robinson@envato.com',
@@ -12,7 +12,7 @@ setup(
     include_package_data=True,
     description="Batch send data with retries and exponential backoff",
     install_requires=[
-        'boto3>=1.0.0',
+        'boto3>=1.3.1,<2',
     ],
     suite='tests',
 )

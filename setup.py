@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='batch_retry',
-    version='0.0.1',
+    version='0.0.2',
     license='MIT',
     author='patrickrobinson',
     author_email='patrick.robinson@envato.com',

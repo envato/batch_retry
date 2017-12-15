@@ -34,3 +34,9 @@ For bug fixes, documentation changes, and small features:
 5. Create a new Pull Request  
 
 For larger new features: Do everything as above, but first also make contact with the project maintainers to be sure your change fits with the project direction and you won't be wasting effort going in the wrong direction
+
+### Running tests
+
+```
+python setup.py test
+```

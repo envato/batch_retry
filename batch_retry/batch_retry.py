@@ -27,7 +27,8 @@ class BatchRetry(object):
 
             # Taken from the AWS example for Exponential Backoff
             # http://docs.aws.amazon.com/general/latest/gr/api-retries.html
-            wait_time = (2 ** attempts) * 100
-            time.sleep(wait_time)
+            wait_time_in_milliseconds = (2 ** attempts) * 100
+            wait_time_in_seconds = wait_time_in_milliseconds / 1000
+            time.sleep(wait_time_in_seconds)
 
         return successful
